@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinnamon Consignments | Ceylon Export Grade</title>
+    <style>
+        /* --- 1. SETTINGS & VARIABLES --- */
+        :root {
+            --bg-void: #0f0805;
+            /* Deepest Black/Brown */
+            --bg-amber: #2b1b15;
+            /* Rich Coffee Brown */
+            --gold-primary: #e6c200;
+            /* Bright Gold */
+            --gold-muted: #bf9b30;
+            /* Antique Gold */
+            --text-light: #f5f5f5;
+            --text-dim: #a8a09a;
+
+            /* Glass Hybrid Settings */
+            --glass-panel: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-glow: rgba(230, 194, 0, 0.15);
+            --blur-strength: 12px;
+
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            /* Native smooth scroll */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-void);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- 2. ATMOSPHERE & BACKGROUND --- */
+        .fixed-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            /* High-res dark wood/spice texture */
+            background-image: url('https://images.unsplash.com/photo-1599940824399-b87987ced72a?q=80&w=2500&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.25) sepia(0.3);
+        }
+
+        .noise-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 900;
+            pointer-events: none;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+
+        /* --- 3. NAVIGATION (Floating Pill) --- */
+        nav {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(15, 8, 5, 0.7);
+            backdrop-filter: blur(20px);
+            padding: 12px 30px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: 0.3s;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--gold-primary);
+        }
+
+        .brand-logo {
+            color: #fff;
+            font-weight: 800;
+            border-right: 1px solid var(--glass-border);
+            padding-right: 30px;
+        }
+
+        /* --- 4. HERO SECTION (Parallax) --- */
+        header.hero {
+            height: 105vh;
+            /* Slightly taller than screen */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .hero-text {
+            text-align: center;
+            z-index: 2;
+            mix-blend-mode: overlay;
+            /* Blends text with image for cinematic look */
+        }
+
+        .hero h1 {
+            font-size: 8vw;
+            line-height: 0.9;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            background: linear-gradient(to bottom, #fff 40%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.9;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--gold-primary);
+            margin-top: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Floating Cinnamon Elements */
+        .floating-element {
+            position: absolute;
+            z-index: 1;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.8));
+            pointer-events: none;
+            transition: transform 0.1s linear;
+            /* Smooth mouse follow */
+        }
+
+        /* --- 5. CONTENT SECTIONS --- */
+        .section-padding {
+            padding: 120px 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 60px;
+            border-left: 3px solid var(--gold-primary);
+            padding-left: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        .section-header p {
+            color: var(--text-dim);
+            max-width: 500px;
+            margin-top: 10px;
+        }
+
+        /* --- 6. BENTO GRID FOR GRADES --- */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 350px);
+            gap: 20px;
+        }
+
+        .card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-panel);
+            transition: transform 0.4s var(--ease-out), border-color 0.4s;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            /* group: ; */
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.01);
+            border-color: var(--gold-muted);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+            transition: 0.5s;
+            z-index: 0;
+            filter: grayscale(40%);
+        }
+
+        .card:hover .card-img {
+            opacity: 0.9;
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+            padding: 30px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            width: 100%;
+        }
+
+        .grade-badge {
+            background: var(--gold-primary);
+            color: #000;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: #ccc;
+            line-height: 1.4;
+            opacity: 0.8;
+        }
+
+        /* Grid Spans */
+        .col-2 {
+            grid-column: span 2;
+        }
+
+        .col-4 {
+            grid-column: span 4;
+        }
+
+        /* --- 7. "WE DO THE WORK" LIST --- */
+        .service-list {
+            margin-top: 40px;
+        }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+
+        .service-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+            padding-left: 20px;
+            padding-right: 20px;
+            border-bottom: 1px solid var(--gold-primary);
+        }
+
+        .s-left {
+            display: flex;
+            align-items: baseline;
+            gap: 30px;
+        }
+
+        .s-num {
+            font-family: 'Courier New', monospace;
+            color: var(--gold-primary);
+            font-size: 1.2rem;
+        }
+
+        .s-title {
+            font-size: 1.8rem;
+            font-weight: 400;
+        }
+
+        .s-desc {
+            color: var(--text-dim);
+            max-width: 400px;
+            text-align: right;
+        }
+
+        /* --- 8. FOOTER --- */
+        footer {
+            margin-top: 100px;
+            border-top: 1px solid var(--glass-border);
+            padding: 80px 20px;
+            background: #050302;
+            text-align: center;
+        }
+
+        .btn-cta {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: transparent;
+            color: var(--gold-primary);
+            border: 1px solid var(--gold-primary);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-cta:hover {
+            background: var(--gold-primary);
+            color: #000;
+        }
+
+        /* --- 9. ANIMATION UTILITIES --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s var(--ease-out);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero h1 {
+                font-size: 15vw;
+            }
+
+            .bento-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .card {
+                height: 300px;
+            }
+
+            .service-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .s-desc {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="fixed-bg"></div>
+    <div class="noise-grain"></div>
+
+    <nav>
+        <span class="brand-logo">CINNAMON</span>
+        <a href="#about">About</a>
+        <a href="#inventory">Inventory</a>
+        <a href="#logistics">Logistics</a>
+        <a href="#contact" style="color:var(--gold-primary)">Contact</a>
+    </nav>
+
+    <header class="hero">
+        <img src="https://cdn.pixabay.com/photo/2024/07/01/04/13/ai-generated-8864269_1280.png" class="floating-element"
+            style="width: 30vw; min-width:300px; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity:0.4;"
+            alt="Cinnamon Sticks">
+
+        <div class="hero-text">
+            <h1>Ceylon<br>Origin</h1>
+            <p>Exporting the World's Finest Bark</p>
+        </div>
+    </header>
+
+    <section id="about" class="section-padding">
+        <div class="section-header reveal">
+            <h2>Purity in Every Bale.</h2>
+            <p>We bridge the gap between Sri Lankan plantations and the global market. Our value proposition is simple:
+                <strong>We handle the dirt, you get the gold.</strong>
+            </p>
+        </div>
+    </section>
+
+    <section id="inventory" class="section-padding">
+        <div class="section-header reveal">
+            <h2>Current Consignments</h2>
+            <p>Fresh harvest, graded, and ready for shipment.</p>
+        </div>
+
+        <div class="bento-grid">
+
+            <div class="card col-2 reveal">
+                <img src="https://cdn.pixabay.com/photo/2017/01/11/11/03/cinnamon-1971496_1280.jpg" class="card-img"
+                    alt="Alba">
+                <div class="card-content">
+                    <span class="grade-badge">Premium Grade</span>
+                    <h3>Alba</h3>
+                    <p>The crown jewel. Pencil-thin quills with delicate texture and sweet aroma. High demand in gourmet
+                        markets.</p>
+                </div>
+            </div>
+
+            <div class="card reveal">
+                <img src="_C4.jpg" class="card-img" alt="C5">
+                <div class="card-content">
+                    <span class="grade-badge">Continental</span>
+                    <h3>C5 Special</h3>
+                    <p>Smooth golden quills. The industry standard for high-end retail packing.</p>
+                </div>
+            </div>
+
+            <div class="card reveal">
+                <img src="https://cdn.pixabay.com/photo/2018/12/29/19/29/food-3902024_1280.jpg" class="card-img"
+                    alt="C4">
+                <div class="card-content">
+                    <span class="grade-badge">Continental</span>
+                    <h3>C4 Grade</h3>
+                    <p>Excellent value with slight texture variance. Perfect for bulk retail.</p>
+                </div>
+            </div>
+
+            <div class="card col-4 reveal" style="height: 250px;">
+                <img src="https://cdn.pixabay.com/photo/2019/04/06/19/22/glass-4108085_1280.jpg" class="card-img"
+                    alt="Oils">
+                <div class="card-content" style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <div>
+                        <span class="grade-badge">Essential Extracts</span>
+                        <h3>Distilled Oils</h3>
+                        <p>We offer both Bark Oil (High Cinnamaldehyde) and Leaf Oil (High Eugenol) in bulk drums.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card reveal">
+                <img src="_H2_BOX.jpg" class="card-img" alt="H1">
+                <div class="card-content">
+                    <span class="grade-badge">Hamburg</span>
+                    <h3>H1 Grade</h3>
+                    <p>Robust and spicy. Ideal for grinding.</p>
+                </div>
+            </div>
+
+            <div class="card reveal">
+                <img src="https://cdn.pixabay.com/photo/2020/05/19/18/42/spices-5192119_1280.jpg" class="card-img"
+                    alt="H2">
+                <div class="card-content">
+                    <span class="grade-badge">Hamburg</span>
+                    <h3>H2 Grade</h3>
+                    <p>Thicker bark, intense flavor profile.</p>
+                </div>
+            </div>
+
+            <div class="card col-2 reveal"
+                style="border-color: var(--gold-primary); background: rgba(230, 194, 0, 0.05);">
+                <div class="card-content">
+                    <h3 style="color:var(--gold-primary)">Complete Handling</h3>
+                    <p>Scroll down to see how we prepare your order.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="logistics" class="section-padding">
+        <div class="section-header reveal">
+            <h2>Logistics & Processing</h2>
+            <p>We handle the complex compliance work so you can focus on sales.</p>
+        </div>
+
+        <div class="service-list">
+
+            <div class="service-item reveal">
+                <div class="s-left">
+                    <span class="s-num">01</span>
+                    <span class="s-title">Grading & Baling</span>
+                </div>
+                <div class="s-desc">
+                    Machine-pressed into 25kg or 45kg bales wrapped in poly-mats to preserve volatile oil content.
+                </div>
+            </div>
+
+            <div class="service-item reveal">
+                <div class="s-left">
+                    <span class="s-num">02</span>
+                    <span class="s-title">Private Labeling</span>
+                </div>
+                <div class="s-desc">
+                    We print and apply your company stickers, barcodes, and batch numbers directly on the packaging.
+                </div>
+            </div>
+
+            <div class="service-item reveal">
+                <div class="s-left">
+                    <span class="s-num">03</span>
+                    <span class="s-title">Fumigation & Phytosanitary</span>
+                </div>
+                <div class="s-desc">
+                    Complete government certification and fumigation process before sealing the container.
+                </div>
+            </div>
+
+            <div class="service-item reveal">
+                <div class="s-left">
+                    <span class="s-num">04</span>
+                    <span class="s-title">Loading & Desiccants</span>
+                </div>
+                <div class="s-desc">
+                    Moisture-controlled loading at our warehouse to prevent mold growth during ocean transit.
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="reveal">
+            <h2 style="font-size: 3rem; color: #fff; margin-bottom: 20px;">Secure Your Consignment</h2>
+            <p style="color: var(--text-dim); margin-bottom: 40px;">Current market prices are volatile. Lock in your
+                rate today.</p>
+
+            <form style="max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+                <input type="email" placeholder="Business Email"
+                    style="padding: 15px; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: #fff; outline: none;">
+                <button type="button" class="btn-cta">Request Details</button>
+            </form>
+
+            <div style="margin-top: 80px; font-size: 0.8rem; color: #555;">
+                &copy; 2025 Eco-Nature Trade. Sri Lanka.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Reveal Elements on Scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // 2. Parallax Effect for Hero Image
+        const heroImg = document.querySelector('.floating-element');
+        const heroText = document.querySelector('.hero-text');
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            if (scrollY < 1000) {
+                // Move image slower than scroll
+                heroImg.style.transform = `translate(-50%, calc(-50% + ${scrollY * 0.3}px)) rotate(${scrollY * 0.02}deg)`;
+                // Move text slightly faster
+                heroText.style.transform = `translateY(${scrollY * 0.5}px)`;
+                heroText.style.opacity = 1 - (scrollY / 700);
+            }
+        });
+    </script>
+</body>
+
+</html>
